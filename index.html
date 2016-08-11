@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<title>Chat</title>
+	<link rel="stylesheet" href="main.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+</head>
+<body>
+	
+	<section class="chat section">
+		
+		<article class="container">
+			<img id="perfil">
+			<h1 id="bienv">Bienvenido</h1>
+			<div class="caja">
+				
+			</div>
+
+			<input type="text" id="mensaje" class="">
+			<input type="submit" id="enviar" class="btn">
+
+			<button id="logout" class="btn">Cerrar Sesion</button>
+		</article>
+
+	</section>
+
+	<section class="login">
+		
+		<button id="entrar" class="btn">Entrar</button>
+
+	</section>
+	
+	<script src="https://code.jquery.com/jquery-3.1.0.min.js"   integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s="   crossorigin="anonymous"></script>
+	<script src="https://www.gstatic.com/firebasejs/3.2.1/firebase.js"></script>
+	<script>
+	  // Initialize Firebase
+	  var config = {
+	    apiKey: "AIzaSyDaLWS5oslda7KFjLVUZSJNR-h6frjGhok",
+	    authDomain: "chat-97f8f.firebaseapp.com",
+	    databaseURL: "https://chat-97f8f.firebaseio.com",
+	    storageBucket: "chat-97f8f.appspot.com",
+	  };
+	  firebase.initializeApp(config);
+	</script>
+	<script>
+		var database = firebase.database();
+		var chat = database.ref('chat');
+		var provider = new firebase.auth.FacebookAuthProvider();
+
+		$('#enviar').on('click', function(){
+			var user = firebase.auth().currentUser;
+			chat.push({
+				nombre:user.displayName,
+				link:user.photoURL,
+				mensaje:$('#mensaje').val()
+			})
+		});
+
+		chat.on('child_added', function(data){
+			var user = firebase.auth().currentUser;
+			var chip = '<div class="chip"> <img src="'+data.val().link+'"/> '+data.val().nombre+' </div>'
+			var color = 'green lighten-5'
+			if(data.val().nombre == user.displayName){
+				color = 'green accent-2 own'
+			}
+			$('.caja').append(chip+'<div class="chip '+color+'">'+ data.val().mensaje + ' </div><br>' )
+		});
+
+		$('#entrar').on('click', function(){
+			firebase.auth().signInWithPopup(provider).then(function(result) {
+			  // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+			  var token = result.credential.accessToken;
+			  // The signed-in user info.
+			  var user = result.user;
+			  console.log(user);
+
+			  if(user){
+			  	$('#bienv').append(" "+user.displayName);
+				  $('img').attr('src',user.photoUrl);
+				  $('.chat').show();
+				  $('#entrar').hide();
+			  }else{
+
+			  }
+
+			  $('#logout').on('click',function(){
+
+			  firebase.auth().signOut().then(function() {
+				  $('.chat').hide();
+				  $('#entrar').show();
+				  $('h1').text('Bienvenido')
+				}, function(error) {
+				  // An error happened.
+				});
+			  });
+			  // ...
+			}).catch(function(error) {
+			  console.log(error);
+			});
+		});
+	</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+
+</body>
+</html>

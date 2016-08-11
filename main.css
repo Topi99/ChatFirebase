@@ -1,0 +1,18 @@
+.chat{
+	display: none;
+}
+
+.own{
+	position: absolute;
+	right: 15%;
+}
+
+#entrar{
+	position:absolute;
+	margin: auto;
+	width:150px;
+	left:0;
+	right:0;
+	top:0;
+	bottom:0;
+}
